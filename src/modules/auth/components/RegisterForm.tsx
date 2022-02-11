@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { IRegisterParams, IRegisterValidation } from '../../../models/auth';
 import { validateRegister, validRegister } from '../utils';
+import { ILocation, IState } from '../../../models/location';
 
 interface Props {
   onRegister(values: IRegisterParams): void;
   onChangeLocation(id: number): void;
   loading: boolean;
   errorMessage: string;
-  location: any[];
-  state: any[];
+  location: ILocation[];
+  state: IState[];
 }
 
 const RegisterForm = (props: Props) => {
@@ -117,7 +118,7 @@ const RegisterForm = (props: Props) => {
         </label>
 
         <select className="form-control" onChange={handleRegion}>
-          {location.map((location, index) => (
+          {location.map((location: ILocation, index) => (
             <option key={index} value={location.id}>
               {location.name}
             </option>
@@ -130,7 +131,7 @@ const RegisterForm = (props: Props) => {
         </label>
 
         <select className="form-control" onChange={handleState}>
-          {state.map((state, index) => (
+          {state.map((state: IState, index) => (
             <option key={index} value={state.id}>
               {state.name}
             </option>
