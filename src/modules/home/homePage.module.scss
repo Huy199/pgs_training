@@ -1,0 +1,47 @@
+.container {
+  width: 400px;
+  margin: 0 auto;
+  padding-top: 50px;
+}
+.button {
+  display: block;
+}
+.infors {
+  overflow-y: scroll;
+  height: 450px;
+}
+.infor {
+  display: flex;
+  border: 1px solid #555;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.images {
+  margin-right: 24px;
+}
+.image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.details {
+}
+.name {
+  &:hover {
+    border: 1px solid #86b7fe;
+  }
+  width: 300px !important;
+}
+.desc {
+  margin-top: 16px;
+  &:hover {
+    border: 1px solid #86b7fe;
+  }
+}
+.label {
+  border: 1px solid #333;
+  &:hover {
+    border: 1px solid #86b7fe;
+  }
+  padding: 0 8px;
+}

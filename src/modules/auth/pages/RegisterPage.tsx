@@ -21,6 +21,7 @@ const RegisterPage = () => {
   const [pid, setPid] = useState(Number);
 
   const [errorMessage, setErrorMessage] = useState('');
+
   useEffect(() => {
     async function fetchLocation() {
       const json = await dispatch(fetchThunk(API_PATHS.location, 'get'));
@@ -28,6 +29,8 @@ const RegisterPage = () => {
     }
     fetchLocation();
   }, []);
+  console.log('location: ', location);
+
   useEffect(() => {
     async function fetchState() {
       const json = await dispatch(fetchThunk(API_PATHS.location + `?pid=${pid}`));
@@ -36,8 +39,8 @@ const RegisterPage = () => {
     fetchState();
   }, [pid]);
 
-  const onChangeLocation = (id: number) => {
-    setPid(id);
+  const onChangeLocation = (pid: number) => {
+    setPid(pid);
   };
 
   const onRegister = React.useCallback(
@@ -81,9 +84,9 @@ const RegisterPage = () => {
       <img src={logo} alt="" style={{ maxWidth: '250px', margin: '32px' }} />
 
       <RegisterForm
+        onChangeLocation={onChangeLocation}
         location={location}
         state={state}
-        onChangeLocation={onChangeLocation}
         onRegister={onRegister}
         loading={loading}
         errorMessage={errorMessage}

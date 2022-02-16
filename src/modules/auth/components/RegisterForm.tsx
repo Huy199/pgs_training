@@ -6,7 +6,7 @@ import { ILocation, IState } from '../../../models/location';
 
 interface Props {
   onRegister(values: IRegisterParams): void;
-  onChangeLocation(id: number): void;
+  onChangeLocation(pid: number): void;
   loading: boolean;
   errorMessage: string;
   location: ILocation[];

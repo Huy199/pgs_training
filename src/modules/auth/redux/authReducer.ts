@@ -13,8 +13,9 @@ export const setAuthorization = createCustomAction('auth/setAuthorization', (dat
 export const setUserInfo = createCustomAction('auth/setUserInfo', (data: IUser) => ({
   data,
 }));
+export const removeUserInfo = createCustomAction('auth/removeUserInfo', () => ({}));
 
-const actions = { setAuthorization, setUserInfo };
+const actions = { setAuthorization, setUserInfo, removeUserInfo };
 
 type Action = ActionType<typeof actions>;
 
@@ -24,6 +25,8 @@ export default function reducer(state: AuthState = {}, action: Action) {
       return { ...state, auth: action.data };
     case getType(setUserInfo):
       return { ...state, user: action.data };
+    case getType(removeUserInfo):
+      return { ...state, user: null };
     default:
       return state;
   }
