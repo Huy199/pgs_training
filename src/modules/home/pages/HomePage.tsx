@@ -13,6 +13,7 @@ import { ACCESS_TOKEN_KEY } from '../../../utils/constants';
 import { replace } from 'connected-react-router';
 import { ROUTES } from '../../../configs/routes';
 import { removeUserInfo } from '../../auth/redux/authReducer';
+import { API_PATHS } from '../../../configs/api';
 
 const HomePage = () => {
   const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>();
@@ -22,7 +23,7 @@ const HomePage = () => {
   }));
 
   const getPhotos = useCallback(async () => {
-    const json = await dispatch(fetchThunk('https://jsonplaceholder.typicode.com/photos'));
+    const json = await dispatch(fetchThunk(API_PATHS.photo));
     if (json) {
       dispatch(setPhotos(json.slice(0, 10)));
     }
@@ -32,12 +33,16 @@ const HomePage = () => {
     getPhotos();
   }, [getPhotos]);
 
+  useEffect(() => {
+    setClonePhotos([...photos]);
+  }, [photos]);
+
   const setPhotoTitle = useCallback((index: number, value: string) => {
     setClonePhotos((prevState) => {
-      const newPhotosByTutorComponent = Array.from(prevState);
-      const newPhoto = { ...newPhotosByTutorComponent[index], title: value };
-      newPhotosByTutorComponent[index] = newPhoto;
-      return newPhotosByTutorComponent;
+      const newTitle = Array.from(prevState);
+      const newPhoto = { ...newTitle[index], title: value };
+      newTitle[index] = newPhoto;
+      return newTitle;
     });
   }, []);
 
@@ -49,22 +54,33 @@ const HomePage = () => {
     dispatch(setPhotos([...clonePhotos]));
   };
 
-  useEffect(() => {
-    setClonePhotos([...photos]);
-  }, [photos]);
-
-  const handleLogout = useCallback(
-    (e) => {
-      Cookie.remove(ACCESS_TOKEN_KEY);
-      dispatch(removeUserInfo());
-      dispatch(replace(ROUTES.login));
-    },
-    [dispatch],
-  );
+  const handleLogout = useCallback(() => {
+    Cookie.remove(ACCESS_TOKEN_KEY);
+    dispatch(removeUserInfo());
+    dispatch(replace(ROUTES.login));
+  }, [dispatch]);
 
   return (
-    <div className={styles.container}>
-      <button type="button" className="btn btn-secondary" onClick={handleLogout}>
+    <div
+      style={{
+        width: 500,
+        margin: '20px auto',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'white',
+        padding: 20,
+        boxShadow: '0 0 10px 4px #bfbfbf',
+        borderRadius: 5,
+        height: '90vh',
+      }}
+      className={styles.container}
+    >
+      <button
+        style={{ width: '80px', marginLeft: '83%' }}
+        type="button"
+        className="btn btn-secondary"
+        onClick={handleLogout}
+      >
         Logout
       </button>
       <div className={styles.button}>
