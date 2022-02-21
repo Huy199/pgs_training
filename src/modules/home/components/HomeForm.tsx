@@ -39,7 +39,7 @@ const HomeForm = (props: Props) => {
       <div className={styles.details}>
         <h5>{Date.now()}</h5>
         {isLabel ? (
-          <div className={styles.label} onClick={() => setIsLabel(false)}>
+          <div className={styles.label + ' form-control'} onClick={() => setIsLabel(false)}>
             {title}
           </div>
         ) : (

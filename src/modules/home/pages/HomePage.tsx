@@ -21,6 +21,7 @@ const HomePage = () => {
   const { photos } = useSelector((state: AppState) => ({
     photos: state.data.photos,
   }));
+  console.log('photos: ', photos);
 
   const getPhotos = useCallback(async () => {
     const json = await dispatch(fetchThunk(API_PATHS.photo));
