@@ -295,8 +295,8 @@ const PayrollPage = () => {
         loading={loading}
         page={page}
         pageSize={pageSize}
-        handlePage={() => setPage(page)}
-        handlePageSize={() => setPageSize(pageSize)}
+        handlePage={(page) => setPage(page)}
+        handlePageSize={(pageSize) => setPageSize(pageSize)}
         columns={columns}
         payrolls={payrolls}
       />
