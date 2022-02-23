@@ -15,6 +15,8 @@ import { IPayroll } from '../../../models/Payroll';
 import { payrollRemaining } from '../redux/payrollSelector';
 import moment from 'moment';
 import { CSVLink, CSVDownload } from 'react-csv';
+import { replace } from 'connected-react-router';
+import { ROUTES } from '../../../configs/routes';
 const { Title } = Typography;
 const { Option } = Select;
 export interface IFilterDate {
@@ -227,8 +229,18 @@ const ProductPage = () => {
       }}
     >
       <Row style={{ marginBottom: '32px' }}>
-        <Col span={21}>
+        <Col span={18}>
           <Title level={3}>Payroll Transactions List</Title>
+        </Col>
+        <Col span={3}>
+          <Button
+            className="btn btn-secondary"
+            onClick={() => {
+              dispatch(replace(ROUTES.home));
+            }}
+          >
+            Home
+          </Button>
         </Col>
         <CSVLink data={payrolls}>
           <Button style={{ width: '150px' }} type="primary" icon={<UploadOutlined />}>

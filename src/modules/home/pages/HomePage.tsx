@@ -76,14 +76,22 @@ const HomePage = () => {
       }}
       className={styles.container}
     >
-      <button
-        style={{ width: '80px', marginLeft: '83%' }}
-        type="button"
-        className="btn btn-secondary"
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <button
+          style={{ width: '80px' }}
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => {
+            dispatch(replace(ROUTES.payroll));
+          }}
+        >
+          Payroll
+        </button>
+        <button style={{ width: '80px' }} type="button" className="btn btn-secondary" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+
       <div className={styles.button}>
         <button
           disabled={JSON.stringify(photos) === JSON.stringify(clonePhotos)}
