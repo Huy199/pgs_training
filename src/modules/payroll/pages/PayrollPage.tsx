@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Select, Row, Col, DatePicker, Input, Button, Modal, Form } from 'antd';
+import { Select, Row, Col, DatePicker, Input, Button, Modal } from 'antd';
 import 'antd/dist/antd.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import { UploadOutlined } from '@ant-design/icons';
@@ -17,6 +17,7 @@ import moment from 'moment';
 import { CSVLink, CSVDownload } from 'react-csv';
 import { replace } from 'connected-react-router';
 import { ROUTES } from '../../../configs/routes';
+import PayrollForm from '../components/PayrollForm';
 const { Title } = Typography;
 const { Option } = Select;
 export interface IFilterDate {
@@ -24,7 +25,7 @@ export interface IFilterDate {
   endDate: string;
 }
 const { RangePicker } = DatePicker;
-const ProductPage = () => {
+const PayrollPage = () => {
   const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -34,7 +35,6 @@ const ProductPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [client, setClient] = useState('');
   const [currency, setCurrency] = useState('');
-  const [total, setTotal] = useState();
   const [key, setKey] = useState(0);
   const [status, setStatus] = useState('');
   const [viewOrder, setviewOrder] = useState('');
@@ -47,7 +47,7 @@ const ProductPage = () => {
   const [checkDefaultDate, setCheckDefaultDate] = useState(false);
   const [startDate, setStartDate] = useState<string | null>(moment(new Date()).format('DD/MM/yy'));
   const [endDate, setEndDate] = useState<string | null>(moment(new Date()).format('DD/MM/yy'));
-  const [checkChangeDate, setCheckChangeDate] = useState('');
+
   const showModal = (data: IPayroll, key: any) => {
     setClient(data.company_id);
     setCurrency(data.currency);
@@ -86,6 +86,7 @@ const ProductPage = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
   useEffect(() => {
     setLoading(true);
     if (LIST_PAYROLL.payrolls) {
@@ -170,10 +171,6 @@ const ProductPage = () => {
     },
   ];
 
-  function onChange(value: any) {
-    console.log(`selected ${value}`);
-  }
-
   function onChangeStatus(value: string) {
     setStatus(value);
   }
@@ -185,9 +182,6 @@ const ProductPage = () => {
     setCurrency(value);
   }
 
-  function onSearch(val: any) {
-    console.log('search:', val);
-  }
   const handleDate = (value: any, dateString: any) => {
     if (value) {
       setFilterDate({ startDate: value[0], endDate: value[1] });
@@ -202,10 +196,6 @@ const ProductPage = () => {
   useEffect(() => {
     dispatch(filterDateAction(filterDate));
   }, [filterDate?.startDate, filterDate?.endDate]);
-
-  const handleInputClient = (e: any) => {
-    setClient(e.target.value);
-  };
 
   const clearFilter = () => {
     setFilterDate({ startDate: '', endDate: '' });
@@ -301,20 +291,16 @@ const ProductPage = () => {
           </Row>
         </Col>
       </Row>
-      <Table
+      <PayrollForm
         loading={loading}
-        pagination={{
-          current: page,
-          total: 200,
-          pageSize: pageSize,
-          onChange: (page, pageSize) => {
-            setPage(page);
-            setPageSize(pageSize);
-          },
-        }}
+        page={page}
+        pageSize={pageSize}
+        handlePage={() => setPage(page)}
+        handlePageSize={() => setPageSize(pageSize)}
         columns={columns}
-        dataSource={payrolls}
-      ></Table>
+        payrolls={payrolls}
+      />
+
       <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
         <h6>Order</h6>
         <Input className="mb-3" value={viewOrder} readOnly />
@@ -337,4 +323,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default PayrollPage;

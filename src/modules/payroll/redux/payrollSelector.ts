@@ -19,7 +19,6 @@ export const payrollRemaining = createSelector(
       const start = new Date(date.startDate);
       const endD = new Date(date.endDate);
       const compare = new Date(c);
-      const ss = compare >= start ? compare : '';
 
       if (status !== '') {
         if (status === 'Received') {
@@ -35,8 +34,7 @@ export const payrollRemaining = createSelector(
             (payroll.matched || payroll.approved) &&
             !payroll.received &&
             (date.endDate !== '' && date.startDate !== ''
-              ? moment(payroll.time_created).format('DD/MM/yyyy') > startDate &&
-                moment(payroll.time_created).format('DD/MM/yyyy') < end
+              ? compare.getTime() >= start.getTime() && compare.getTime() <= endD.getTime()
               : true) &&
             (order !== '' ? payroll.payroll_id.includes(order) : true)
           );
@@ -46,8 +44,7 @@ export const payrollRemaining = createSelector(
             !(payroll.matched || payroll.approved) &&
             !payroll.received &&
             (date.endDate !== '' && date.startDate !== ''
-              ? moment(payroll.time_created).format('DD/MM/yyyy') > startDate &&
-                moment(payroll.time_created).format('DD/MM/yyyy') < end
+              ? compare.getTime() >= start.getTime() && compare.getTime() <= endD.getTime()
               : true) &&
             (order !== '' ? payroll.payroll_id.includes(order) : true)
           );
@@ -57,8 +54,7 @@ export const payrollRemaining = createSelector(
             !(payroll.matched || payroll.approved) &&
             !payroll.fulfilled &&
             (date.endDate !== '' && date.startDate !== ''
-              ? moment(payroll.time_created).format('DD/MM/yyyy') > startDate &&
-                moment(payroll.time_created).format('DD/MM/yyyy') < end
+              ? compare.getTime() >= start.getTime() && compare.getTime() <= endD.getTime()
               : true) &&
             (order !== '' ? payroll.payroll_id.includes(order) : true)
           );
