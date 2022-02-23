@@ -11,7 +11,7 @@ export interface IPayroll {
   date_processed: string | null;
   date_received: string | null;
   date_released: string | null;
-  fees: Number;
+  fees: number;
   fulfilled: Boolean;
   is_premium: Boolean;
   matched: Boolean;
@@ -22,7 +22,7 @@ export interface IPayroll {
   released: Boolean;
   subpayroll_ids: string[];
   time_created: string;
-  volume_input_in_input_currency: Number;
+  volume_input_in_input_currency: number;
 }
 export interface IMeta {
   curr_cursor: '';

@@ -10,12 +10,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { AppState } from '../../../redux/reducer';
 import { Action } from 'redux';
-import { deletePayrolls, setPayrolls } from '../redux/payrollReducer';
+import { deletePayrolls, setPayrolls, filterStatus, filterDateAction, searchByOrder } from '../redux/payrollReducer';
 import { IPayroll } from '../../../models/Payroll';
-
+import { payrollRemaining } from '../redux/payrollSelector';
+import moment from 'moment';
+import { CSVLink, CSVDownload } from 'react-csv';
 const { Title } = Typography;
 const { Option } = Select;
-
+export interface IFilterDate {
+  startDate: string;
+  endDate: string;
+}
 const { RangePicker } = DatePicker;
 const ProductPage = () => {
   const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>();
@@ -23,20 +28,31 @@ const ProductPage = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [datas, setDatas] = useState<IPayroll[]>([]);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState(new Date('2022/02/10'));
-  const payrolls = useSelector((state: AppState) => state.payroll?.payrolls);
+  const payrolls = useSelector(payrollRemaining);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [client, setClient] = useState('');
   const [currency, setCurrency] = useState('');
   const [total, setTotal] = useState();
   const [key, setKey] = useState(0);
   const [status, setStatus] = useState('');
+  const [viewOrder, setviewOrder] = useState('');
+  const [viewFunding, setViewFunding] = useState('');
+  const [order, setOrder] = useState('');
+  const [filterDate, setFilterDate] = useState<IFilterDate>({
+    startDate: '',
+    endDate: '',
+  });
+  const [checkDefaultDate, setCheckDefaultDate] = useState(false);
+  const [startDate, setStartDate] = useState<string | null>(moment(new Date()).format('DD/MM/yy'));
+  const [endDate, setEndDate] = useState<string | null>(moment(new Date()).format('DD/MM/yy'));
+  const [checkChangeDate, setCheckChangeDate] = useState('');
   const showModal = (data: IPayroll, key: any) => {
     setClient(data.company_id);
     setCurrency(data.currency);
     setKey(key);
+    setviewOrder(data.payroll_id);
     setIsModalVisible(true);
+    setViewFunding(data.payment_type);
   };
 
   const handleOk = () => {
@@ -56,9 +72,14 @@ const ProductPage = () => {
 
     dispatch(deletePayrolls(deleteData));
   };
-  // useEffect(() => {
 
-  // }, [datas]);
+  const onChangeOrder = (e: any) => {
+    setOrder(e.target.value);
+  };
+
+  useEffect(() => {
+    dispatch(searchByOrder(order));
+  }, [order]);
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -83,13 +104,13 @@ const ProductPage = () => {
       title: 'Status',
       dataIndex: 'id',
       render: (row: any, data: IPayroll) => {
-        if (data.fulfilled) {
-          return <p style={{ color: 'rgb(0 246 4)' }}>Fulfilled</p>;
-        } else if (data.received) {
+        if (data.received) {
           return <p style={{ color: 'rgb(0 198 247)' }}>Receive</p>;
-        } else if (data.date_processed) {
+        } else if (data.matched || data.approved) {
           return <p style={{ color: 'rgb(246 246 50)' }}>Processing</p>;
-        } else if (!data.approved) {
+        } else if (data.fulfilled) {
+          return <p style={{ color: 'rgb(0 246 4)' }}>Fulfilled</p>;
+        } else if (!data.received && !(data.matched || data.approved) && !data.fulfilled) {
           return <p style={{ color: 'rgb(123 126 126)' }}>Pending</p>;
         }
       },
@@ -97,12 +118,14 @@ const ProductPage = () => {
     {
       key: '2',
       title: 'Date',
-      dataIndex: 'time_created',
+      render: (data: IPayroll) => {
+        return moment(data.time_created).format('DD/MM/yyyy');
+      },
     },
     {
       key: '3',
-      title: 'Client',
-      dataIndex: 'company_id',
+      title: 'Funding Method',
+      dataIndex: 'payment_type',
     },
     {
       key: '4',
@@ -112,11 +135,13 @@ const ProductPage = () => {
     {
       key: '5',
       title: 'Total',
-      dataIndex: 'number_of_recipients',
+      render: (data: IPayroll) => {
+        return data.volume_input_in_input_currency + data.fees;
+      },
     },
     {
       key: '6',
-      title: 'Invoice #',
+      title: 'Order #',
       dataIndex: 'payroll_id',
     },
     {
@@ -150,6 +175,9 @@ const ProductPage = () => {
   function onChangeStatus(value: string) {
     setStatus(value);
   }
+  useEffect(() => {
+    dispatch(filterStatus(status));
+  }, [status]);
 
   function onChangeCurrent(value: any) {
     setCurrency(value);
@@ -158,12 +186,30 @@ const ProductPage = () => {
   function onSearch(val: any) {
     console.log('search:', val);
   }
-  const handleDate = (e: any) => {
-    console.log(e);
+  const handleDate = (value: any, dateString: any) => {
+    if (value) {
+      setFilterDate({ startDate: value[0], endDate: value[1] });
+    }
+    if (dateString) {
+      setStartDate(dateString[0]);
+      setEndDate(dateString[1]);
+    }
+    setCheckDefaultDate(true);
   };
+
+  useEffect(() => {
+    dispatch(filterDateAction(filterDate));
+  }, [filterDate?.startDate, filterDate?.endDate]);
 
   const handleInputClient = (e: any) => {
     setClient(e.target.value);
+  };
+
+  const clearFilter = () => {
+    setFilterDate({ startDate: '', endDate: '' });
+    setStatus('');
+    setOrder('');
+    setCheckDefaultDate(false);
   };
 
   return (
@@ -184,9 +230,11 @@ const ProductPage = () => {
         <Col span={21}>
           <Title level={3}>Payroll Transactions List</Title>
         </Col>
-        <Button style={{ width: '150px' }} type="primary" icon={<UploadOutlined />}>
-          export
-        </Button>
+        <CSVLink data={payrolls}>
+          <Button style={{ width: '150px' }} type="primary" icon={<UploadOutlined />}>
+            download
+          </Button>
+        </CSVLink>
       </Row>
       <Row style={{ marginBottom: '24px' }}>
         <Col span={6}>
@@ -194,10 +242,10 @@ const ProductPage = () => {
             <Col span={12}>
               <Select
                 style={{ width: '100px' }}
-                showSearch
                 placeholder="Status"
                 optionFilterProp="children"
                 onChange={onChangeStatus}
+                value={status ? status : null}
               >
                 <Option value="Processing">Processing</Option>
                 <Option value="Fullfilled">Fullfilled</Option>
@@ -205,30 +253,24 @@ const ProductPage = () => {
                 <Option value="Received">Received</Option>
               </Select>
             </Col>
-            <Col span={12}>
-              <Select
-                style={{ width: '100px' }}
-                showSearch
-                placeholder="Client"
-                optionFilterProp="children"
-                onChange={onChange}
-                onSearch={onSearch}
-              >
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="tom">Tom</Option>
-              </Select>
-            </Col>
+            <Col span={12}></Col>
           </Row>
         </Col>
         <Col span={12}>
           <Row>
             <Col span={18}>
-              <RangePicker onChange={handleDate} showTime />
+              <RangePicker
+                value={
+                  checkDefaultDate ? [moment(startDate, 'DD/MM/yyyy'), moment(endDate, 'DD/MM/yyyy')] : [null, null]
+                }
+                onChange={handleDate}
+                showTime
+                format={'DD/MM/yyyy'}
+              />
             </Col>
 
             <Col span={4}>
-              <Input placeholder="Invoice #" />
+              <Input value={order} placeholder="Order #" onChange={onChangeOrder} />
             </Col>
           </Row>
         </Col>
@@ -240,7 +282,9 @@ const ProductPage = () => {
               </Button>
             </Col>
             <Col span={6}>
-              <Button danger>Clear</Button>
+              <Button onClick={clearFilter} danger>
+                Clear
+              </Button>
             </Col>
           </Row>
         </Col>
@@ -260,8 +304,11 @@ const ProductPage = () => {
         dataSource={payrolls}
       ></Table>
       <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-        <h6>Client</h6>
-        <Input className="mb-3" value={client} onChange={handleInputClient} />
+        <h6>Order</h6>
+        <Input className="mb-3" value={viewOrder} readOnly />
+        <h6>Funding</h6>
+        <Input className="mb-3" value={viewFunding} readOnly />
+
         <h6>Currency</h6>
         <Select
           style={{ width: '100px' }}
